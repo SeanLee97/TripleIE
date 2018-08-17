@@ -53,6 +53,8 @@ python3 cli.py --data /path/to/input --out /path/to/save --ltp /path/to/ltpdata
 主谓宾  (超过270张选举人票获胜标准, 当选, 美国第45任总统) 
 主谓宾  (特朗普, 成为, 美国第45任总统)
 ```
+可以看到，目前效果不咋地。。
+
 ##### 小尝试结合结构化数据构建可视化图谱
 ![kg](images/kg.png)
 
