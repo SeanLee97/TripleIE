@@ -8,10 +8,11 @@
 :mtime: 2018.07.23 16:14
 """
 
-import os 
-import re
 import logging
+import os
 import sys
+from importlib import reload
+
 if sys.version_info[0] == 2:
     reload(sys)
     sys.setdefaultencoding("utf8")
@@ -19,6 +20,7 @@ if sys.version_info[0] == 2:
 from pyltp import Segmentor, Postagger, Parser, NamedEntityRecognizer
 from tqdm import tqdm
 import utils as U
+
 
 class TripleIE(object):
     def __init__(self, in_file_path, out_file_path, model_path, clean_output=False):
@@ -40,35 +42,32 @@ class TripleIE(object):
         self.recognizer = NamedEntityRecognizer()
         self.recognizer.load(os.path.join(self.model_path, "ner.model"))
 
-
     def run(self, in_file_path=None, out_file_path=None):
         if in_file_path is not None:
             self.in_file_path = in_file_path
         if out_file_path is not None:
             self.out_file_path = out_file_path
 
-        self.out_handle = open(self.out_file_path, 'a')
+        self.out_handle = open(self.out_file_path, 'a', encoding="utf-8")
 
         with open(self.in_file_path, "r", encoding="utf-8") as rf:
             self.logger.info("loadding input file {}...".format(self.in_file_path))
             text = ""
             for line in rf:
                 line = line.strip()
-                text += line
-            self.logger.info("done with loadding file...")
+                text = line
 
-            text = U.rm_html(text)
-            sentences = U.split_by_sign(text)
+                text = U.rm_html(text)
+                sentences = U.split_by_sign(text)
 
-            self.logger.info("detect {} sentences".format(len(sentences)))
-
-            self.logger.info("start to extract...")
-            for sentence in tqdm(sentences):
-                self.extract(sentence)
+                self.logger.info("detect {} sentences".format(len(sentences)))
+                self.logger.info("start to extract...")
+                for sentence in tqdm(sentences):
+                    self.extract(sentence)
 
             self.logger.info("done with extracting...")
             self.logger.info("output to {}".format(self.out_file_path))
-            
+
         # close handle
         self.out_handle.close()
 
@@ -77,7 +76,6 @@ class TripleIE(object):
         postags = self.postagger.postag(words)
         ner = self.recognizer.recognize(words, postags)
         arcs = self.parser.parse(words, postags)
-
         sub_dicts = self._build_sub_dicts(words, postags, arcs)
         for idx in range(len(postags)):
 
@@ -99,7 +97,7 @@ class TripleIE(object):
                         e1 = self._fill_ent(words, postags, sub_dicts, arcs[idx].head - 1)
                         r = words[idx]
                         e2 = self._fill_ent(words, postags, sub_dicts, sub_dict['VOB'][0])
-                        temp_string = r+e2
+                        temp_string = r + e2
                         if temp_string == e1[:len(temp_string)]:
                             e1 = e1[len(temp_string):]
                         if temp_string not in e1:
@@ -107,7 +105,7 @@ class TripleIE(object):
                                 self.out_handle.write("%s, %s, %s\n" % (e1, r, e2))
                             else:
                                 self.out_handle.write("动宾定语后置\t(%s, %s, %s)\n" % (e1, r, e2))
-                            
+
                             self.out_handle.flush()
 
             # 抽取命名实体有关的三元组
@@ -117,30 +115,31 @@ class TripleIE(object):
                     if ner[ni][0] == 'B':
                         while len(ner) > 0 and len(ner[ni]) > 0 and ner[ni][0] != 'E':
                             ni += 1
-                        e1 = ''.join(words[idx:ni+1])
+                        e1 = ''.join(words[idx:ni + 1])
                     else:
                         e1 = words[ni]
-                    if arcs[ni].relation == 'ATT' and postags[arcs[ni].head-1] == 'n' and ner[arcs[ni].head-1] == 'O':
-                        r = self._fill_ent(words, postags, sub_dicts, arcs[ni].head-1)
+                    if arcs[ni].relation == 'ATT' and postags[arcs[ni].head - 1] == 'n' and ner[
+                        arcs[ni].head - 1] == 'O':
+                        r = self._fill_ent(words, postags, sub_dicts, arcs[ni].head - 1)
                         if e1 in r:
-                            r = r[(r.idx(e1)+len(e1)):]
-                        if arcs[arcs[ni].head-1].relation == 'ATT' and ner[arcs[arcs[ni].head-1].head-1] != 'O':
-                            e2 = self._fill_ent(words, postags, sub_dicts, arcs[arcs[ni].head-1].head-1)
-                            mi = arcs[arcs[ni].head-1].head-1
+                            r = r[(r.idx(e1) + len(e1)):]
+                        if arcs[arcs[ni].head - 1].relation == 'ATT' and ner[arcs[arcs[ni].head - 1].head - 1] != 'O':
+                            e2 = self._fill_ent(words, postags, sub_dicts, arcs[arcs[ni].head - 1].head - 1)
+                            mi = arcs[arcs[ni].head - 1].head - 1
                             li = mi
                             if ner[mi][0] == 'B':
                                 while ner[mi][0] != 'E':
                                     mi += 1
-                                e = ''.join(words[li+1:mi+1])
+                                e = ''.join(words[li + 1:mi + 1])
                                 e2 += e
                             if r in e2:
-                                e2 = e2[(e2.idx(r)+len(r)):]
-                            if r+e2 in sentence:
+                                e2 = e2[(e2.idx(r) + len(r)):]
+                            if r + e2 in sentence:
                                 if self.clean_output:
                                     self.out_handle.write("%s, %s, %s\n" % (e1, r, e2))
                                 else:
                                     self.out_handle.write("人名/地名/机构\t(%s, %s, %s)\n" % (e1, r, e2))
-                                
+
                                 self.out_handle.flush()
             except:
                 pass
@@ -152,6 +151,7 @@ class TripleIE(object):
         postags: 词性列表
         arcs: 句法依存列表
     """
+
     def _build_sub_dicts(self, words, postags, arcs):
         sub_dicts = []
         for idx in range(len(words)):
@@ -169,13 +169,14 @@ class TripleIE(object):
     """
     :decription:完善识别的部分实体
     """
+
     def _fill_ent(self, words, postags, sub_dicts, word_idx):
         sub_dict = sub_dicts[word_idx]
         prefix = ''
         if 'ATT' in sub_dict:
             for i in range(len(sub_dict['ATT'])):
                 prefix += self._fill_ent(words, postags, sub_dicts, sub_dict['ATT'][i])
-        
+
         postfix = ''
         if postags[word_idx] == 'v':
             if 'VOB' in sub_dict:

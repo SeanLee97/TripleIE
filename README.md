@@ -21,7 +21,7 @@ LTP V3.4.0
 #### usage
 
 ```
-python3 cli.py --data /path/to/input --out /path/to/save --ltp /path/to/ltpdata
+python cli.py --data data/question.txt --out output/output.txt --ltp ltp_data
 
 --data 指定处理的文本文件路径
 --out  指定输出结果的路径
