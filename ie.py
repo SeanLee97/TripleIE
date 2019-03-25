@@ -53,7 +53,7 @@ class TripleIE(object):
         with open(self.in_file_path, "r", encoding="utf-8") as rf:
             self.logger.info("loadding input file {}...".format(self.in_file_path))
             text = ""
-            for line in rf:
+            for index, line in enumerate(rf):
                 line = line.strip()
                 text = line
 
@@ -63,7 +63,7 @@ class TripleIE(object):
                 self.logger.info("detect {} sentences".format(len(sentences)))
                 self.logger.info("start to extract...")
                 for sentence in tqdm(sentences):
-                    self.extract(sentence)
+                    self.extract(sentence, index)
 
             self.logger.info("done with extracting...")
             self.logger.info("output to {}".format(self.out_file_path))
@@ -71,7 +71,7 @@ class TripleIE(object):
         # close handle
         self.out_handle.close()
 
-    def extract(self, sentence):
+    def extract(self, sentence, index):
         words = self.segmentor.segment(sentence)
         postags = self.postagger.postag(words)
         ner = self.recognizer.recognize(words, postags)
@@ -87,9 +87,9 @@ class TripleIE(object):
                     r = words[idx]
                     e2 = self._fill_ent(words, postags, sub_dicts, sub_dict['VOB'][0])
                     if self.clean_output:
-                        self.out_handle.write("%s, %s, %s\n" % (e1, r, e2))
+                        self.out_handle.write("%s\t%s, %s, %s\n" % (index, e1, r, e2))
                     else:
-                        self.out_handle.write("主谓宾\t(%s, %s, %s)\n" % (e1, r, e2))
+                        self.out_handle.write("%s\t主谓宾\t(%s, %s, %s)\n" % (index, e1, r, e2))
                     self.out_handle.flush()
                 # 定语后置，动宾关系
                 if arcs[idx].relation == 'ATT':
@@ -102,9 +102,9 @@ class TripleIE(object):
                             e1 = e1[len(temp_string):]
                         if temp_string not in e1:
                             if self.clean_output:
-                                self.out_handle.write("%s, %s, %s\n" % (e1, r, e2))
+                                self.out_handle.write("%s\t%s, %s, %s\n" % (index, e1, r, e2))
                             else:
-                                self.out_handle.write("动宾定语后置\t(%s, %s, %s)\n" % (e1, r, e2))
+                                self.out_handle.write("%s\t主谓宾\t(%s, %s, %s)\n" % (index, e1, r, e2))
 
                             self.out_handle.flush()
 
@@ -136,9 +136,9 @@ class TripleIE(object):
                                 e2 = e2[(e2.idx(r) + len(r)):]
                             if r + e2 in sentence:
                                 if self.clean_output:
-                                    self.out_handle.write("%s, %s, %s\n" % (e1, r, e2))
+                                    self.out_handle.write("%s\t%s, %s, %s\n" % (index, e1, r, e2))
                                 else:
-                                    self.out_handle.write("人名/地名/机构\t(%s, %s, %s)\n" % (e1, r, e2))
+                                    self.out_handle.write("%s\t主谓宾\t(%s, %s, %s)\n" % (index, e1, r, e2))
 
                                 self.out_handle.flush()
             except:
