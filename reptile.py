@@ -5,15 +5,7 @@ from bs4 import BeautifulSoup
 # 引入selenium
 from selenium import webdriver
 
-
-def getQuestions(dir):
-    questions = []
-    with open(dir, 'r', encoding='utf-8') as f:
-        for line in f:
-            questions.append(line.strip())
-
-    return questions
-
+from utils.common import getQuestions
 
 questions = getQuestions('data/question.txt')
 
