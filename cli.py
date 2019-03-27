@@ -8,20 +8,21 @@
 :mtime: 2018.07.23 16:14
 """
 
-import logging
 import argparse
+
 from ie import TripleIE
+
 
 def parse_args():
     parser = argparse.ArgumentParser('TripleIE')
-    parser.add_argument('--data', type=str, default='data/question.txt',
-                            help='the path to the data')
-    parser.add_argument('--out', type=str, default='output/output.txt',
-                            help='the path to output')
+    parser.add_argument('--data', type=str, default='data/question2.txt',
+                        help='the path to the data')
+    parser.add_argument('--out', type=str, default='output/output2.txt',
+                        help='the path to output')
     parser.add_argument('--ltp', type=str, default='ltp_data',
-                            help='the path to LTP model')
+                        help='the path to LTP model')
     parser.add_argument('--clean', action='store_true',
-                            help='output the clean relation(no tips)')
+                        help='output the clean relation(no tips)')
 
     return parser.parse_args()
 

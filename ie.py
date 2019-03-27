@@ -10,6 +10,7 @@
 
 import logging
 import os
+import re
 import sys
 from importlib import reload
 
@@ -63,7 +64,7 @@ class TripleIE(object):
                 self.logger.info("detect {} sentences".format(len(sentences)))
                 self.logger.info("start to extract...")
                 for sentence in tqdm(sentences):
-                    self.extract(sentence, index)
+                    self.extract(sentence, index + 1)
 
             self.logger.info("done with extracting...")
             self.logger.info("output to {}".format(self.out_file_path))
@@ -71,12 +72,46 @@ class TripleIE(object):
         # close handle
         self.out_handle.close()
 
+    def rules(self, sentence):
+        str = ''
+
+        # 时间规则
+        m_time_1 = re.search(r'(大前天|前天|昨天|今天|上午|下午|晚上)(.+?)到(大前天|前天|昨天|今天|上午|下午|晚上)?(.+?)点?', sentence)
+        m_time_2 = re.search(r'(大前年|前年|去年|上一年|前一年|今年)(.+?)到(大前年|前年|去年|上一年|前一年|今年)?(.+?)月?', sentence)
+
+        if m_time_1:
+            str = m_time_1.group()
+            sentence = sentence.replace(str, '')
+        elif m_time_2:
+            str = m_time_2.group()
+            sentence = sentence.replace(str, '')
+
+        # 气温规则
+        m_temperature_1 = re.search(
+            r'(最低气温|最高气温)(.+?)(大于|小于|大于等于|小于等于|等于|不等于|不大于|不小于|超过|不足|不超过)?(.+?)(\d+)度?', sentence)
+
+        if m_temperature_1:
+            str = m_temperature_1.group()
+            str = str[:4]
+
+        return sentence, str
+
     def extract(self, sentence, index):
+        # 匹配规则
+        sentence, rule_str = self.rules(sentence)
+
         words = self.segmentor.segment(sentence)
         postags = self.postagger.postag(words)
         ner = self.recognizer.recognize(words, postags)
         arcs = self.parser.parse(words, postags)
         sub_dicts = self._build_sub_dicts(words, postags, arcs)
+
+        # print('\t'.join(words))
+        # print('\t'.join(postags))
+        # print('\t'.join(ner))
+        # print("\t".join("%d:%s" % (arc.head, arc.relation) for arc in arcs))
+        # print(sub_dicts)
+
         for idx in range(len(postags)):
 
             if postags[idx] == 'v':
@@ -107,6 +142,27 @@ class TripleIE(object):
                                 self.out_handle.write("%s\t主谓宾\t(%s, %s, %s)\n" % (index, e1, r, e2))
 
                             self.out_handle.flush()
+                # 时间关系
+                nt_index = self._has_t(postags)
+                if nt_index > -1 and 'VOB' in sub_dict:
+                    e1 = words[nt_index]
+                    r = words[idx]
+                    e2 = words[sub_dict['VOB'][0]]
+                    if self.clean_output:
+                        self.out_handle.write("%s\t%s, %s, %s\n" % (index, e1, r, e2))
+                    else:
+                        self.out_handle.write("%s\t时间关系\t(%s, %s, %s)\n" % (index, e1, r, e2))
+                    self.out_handle.flush()
+
+                if rule_str:
+                    e1 = rule_str
+                    r = words[idx]
+                    e2 = words[sub_dict['VOB'][0]]
+                    if self.clean_output:
+                        self.out_handle.write("%s\t%s, %s, %s\n" % (index, e1, r, e2))
+                    else:
+                        self.out_handle.write("%s\t附加关系\t(%s, %s, %s)\n" % (index, e1, r, e2))
+                    self.out_handle.flush()
 
             # 抽取命名实体有关的三元组
             try:
@@ -143,6 +199,13 @@ class TripleIE(object):
                                 self.out_handle.flush()
             except:
                 pass
+
+    def _has_t(self, postags):
+        for (index, postag) in enumerate(postags):
+            if postag == 'nt':
+                return index
+
+        return -1
 
     """
     :decription: 为句子中的每个词语维护一个保存句法依存儿子节点的字典
