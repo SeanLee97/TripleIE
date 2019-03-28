@@ -10,7 +10,6 @@
 
 import logging
 import os
-import re
 import sys
 from importlib import reload
 
@@ -21,6 +20,7 @@ if sys.version_info[0] == 2:
 from pyltp import Segmentor, Postagger, Parser, NamedEntityRecognizer
 from tqdm import tqdm
 import utils as U
+from utils.rules import Main
 
 
 class TripleIE(object):
@@ -64,7 +64,27 @@ class TripleIE(object):
                 self.logger.info("detect {} sentences".format(len(sentences)))
                 self.logger.info("start to extract...")
                 for sentence in tqdm(sentences):
-                    self.extract(sentence, index + 1)
+                    # 匹配规则
+                    sentence, rule_str, rule_type = Main(sentence).select_rules()
+                    # print(sentence)
+                    # print(rule_str)
+                    # print(rule_type)
+                    # exit()
+                    self.extract(sentence, index + 1, rule_str, rule_type)
+
+                    if rule_type == 'company' or rule_type == 'movie':
+                        self.extract(rule_str, index + 1, '', '')
+
+                    elif rule_type == 'car':
+                        rule_str = '车辆' + rule_str
+                        self.extract(rule_str, index + 1, '', '')
+
+                    elif rule_type == 'company_m5' or rule_type == 'movie_m5':
+                        if rule_type == 'company_m5':
+                            rule_str = '公司' + rule_str
+                        elif rule_type == 'movie_m5':
+                            rule_str = '电影' + rule_str
+                        self.extract(rule_str, index + 1, '', '')
 
             self.logger.info("done with extracting...")
             self.logger.info("output to {}".format(self.out_file_path))
@@ -72,34 +92,7 @@ class TripleIE(object):
         # close handle
         self.out_handle.close()
 
-    def rules(self, sentence):
-        str = ''
-
-        # 时间规则
-        m_time_1 = re.search(r'(大前天|前天|昨天|今天|上午|下午|晚上)(.+?)到(大前天|前天|昨天|今天|上午|下午|晚上)?(.+?)点?', sentence)
-        m_time_2 = re.search(r'(大前年|前年|去年|上一年|前一年|今年)(.+?)到(大前年|前年|去年|上一年|前一年|今年)?(.+?)月?', sentence)
-
-        if m_time_1:
-            str = m_time_1.group()
-            sentence = sentence.replace(str, '')
-        elif m_time_2:
-            str = m_time_2.group()
-            sentence = sentence.replace(str, '')
-
-        # 气温规则
-        m_temperature_1 = re.search(
-            r'(最低气温|最高气温)(.+?)(大于|小于|大于等于|小于等于|等于|不等于|不大于|不小于|超过|不足|不超过)?(.+?)(\d+)度?', sentence)
-
-        if m_temperature_1:
-            str = m_temperature_1.group()
-            str = str[:4]
-
-        return sentence, str
-
-    def extract(self, sentence, index):
-        # 匹配规则
-        sentence, rule_str = self.rules(sentence)
-
+    def extract(self, sentence, index, rule_str, rule_type):
         words = self.segmentor.segment(sentence)
         postags = self.postagger.postag(words)
         ner = self.recognizer.recognize(words, postags)
@@ -154,10 +147,10 @@ class TripleIE(object):
                         self.out_handle.write("%s\t时间关系\t(%s, %s, %s)\n" % (index, e1, r, e2))
                     self.out_handle.flush()
 
-                if rule_str:
+                if rule_str and rule_type != 'company' and rule_type != 'car' and rule_type != 'movie':
                     e1 = rule_str
                     r = words[idx]
-                    e2 = words[sub_dict['VOB'][0]]
+                    e2 = words[sub_dict['VOB'][0]] if 'VOB' in sub_dict else ''
                     if self.clean_output:
                         self.out_handle.write("%s\t%s, %s, %s\n" % (index, e1, r, e2))
                     else:
