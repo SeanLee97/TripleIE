@@ -79,11 +79,14 @@ class TripleIE(object):
                         rule_str = '车辆' + rule_str
                         self.extract(rule_str, index + 1, '', '')
 
-                    elif rule_type == 'company_m5' or rule_type == 'movie_m5':
+                    elif rule_type == 'company_m5' or rule_type == 'movie_m5' or rule_type == 'population_m5':
                         if rule_type == 'company_m5':
                             rule_str = '公司' + rule_str
                         elif rule_type == 'movie_m5':
                             rule_str = '电影' + rule_str
+                        elif rule_type == 'population_m5':
+                            rule_str = '人口' + rule_str
+
                         self.extract(rule_str, index + 1, '', '')
 
             self.logger.info("done with extracting...")

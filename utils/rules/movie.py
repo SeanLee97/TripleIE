@@ -47,7 +47,7 @@ class Movie(Base):
             str_rt = self.sentence[:len(self.sentence) - len(str)]
             sentence = '电影' + str
 
-            return sentence, str_rt, 'company_m5'
+            return sentence, str_rt, 'movie_m5'
         else:
             sentence = self.sentence
 
