@@ -1,5 +1,5 @@
 from utils.normalize import Normalize
-from ie_single_question import TripleIE
+from ie_single_hanlp import TripleIEHaNLP
 
 
 class CliSingle():
@@ -10,7 +10,7 @@ class CliSingle():
     def run(self):
         sentences = Normalize(self.sentence).normalize()
         for sentence in sentences:
-            triples = TripleIE(sentence, '/home/httpd/TripleIE/ltp_data').run()
+            triples = TripleIEHaNLP(sentence).run()
             for triple in triples:
                 self.triples.append(triple)
 
