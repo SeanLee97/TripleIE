@@ -10,7 +10,7 @@ class CliSingle():
     def run(self):
         sentences = Normalize(self.sentence).normalize()
         for sentence in sentences:
-            triples = TripleIE(sentence, 'E:/Projects/PyCharmProjects/GitHub/TripleIE/ltp_data').run()
+            triples = TripleIE(sentence, '/home/httpd/TripleIE/ltp_data').run()
             for triple in triples:
                 self.triples.append(triple)
 
