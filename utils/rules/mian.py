@@ -32,8 +32,8 @@ class Main():
             return Car(self.sentence).get_result()
 
         # 电影
-        m_car = re.search(r'(.*)(电影|评分|评论|单日票房|实时票房|电影单价|电影票销售数量|每日销售量|每日总票房|单张利润|销售额|片长|订单)(.*)', self.sentence)
-        if m_car:
+        m_movie = re.search(r'(.*)(电影|评分|评论|单日票房|实时票房|电影单价|电影票销售数量|每日销售量|每日总票房|单张利润|销售额|片长|订单)(.*)', self.sentence)
+        if m_movie:
             return Movie(self.sentence).get_result()
 
         return self.sentence, '', None

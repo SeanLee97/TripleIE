@@ -1,8 +1,8 @@
-with open('question2.txt', 'r', encoding='utf-8') as q:
+with open('normalize.txt', 'r', encoding='utf-8') as q:
     questions = q.readlines()
 
 triples = []
-with open('output2.txt', 'r', encoding='utf-8') as triple:
+with open('normalize_out.txt', 'r', encoding='utf-8') as triple:
     for line in triple:
         line_sp = line.strip()
         line_list = line_sp.split('\t')

@@ -15,9 +15,9 @@ from ie import TripleIE
 
 def parse_args():
     parser = argparse.ArgumentParser('TripleIE')
-    parser.add_argument('--data', type=str, default='data/question2.txt',
+    parser.add_argument('--data', type=str, default='data/normalize.txt',
                         help='the path to the data')
-    parser.add_argument('--out', type=str, default='output/output2.txt',
+    parser.add_argument('--out', type=str, default='output/normalize_out.txt',
                         help='the path to output')
     parser.add_argument('--ltp', type=str, default='ltp_data',
                         help='the path to LTP model')
