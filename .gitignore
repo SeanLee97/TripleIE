@@ -109,3 +109,8 @@ venv.bak/
 /web/log/
 /images/
 /images_copy/
+/pyltp-0.2.1-cp36-cp36m-win_amd64.whl
+/TripleIE.zip
+/ltp_data_v3.4.0.zip
+/data-for-1.7.2.zip
+/ghostdriver.log
