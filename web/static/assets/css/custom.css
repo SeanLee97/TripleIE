@@ -1,0 +1,22 @@
+.main-content {
+    width: 70% !important;
+}
+
+.main-input {
+    background-color: white;
+    color: black;
+}
+
+.main-control {
+    height: calc(3rem + 2px);
+}
+
+.main-show {
+    display: none;
+    margin-top: 20px;
+    width: 100%;
+    height: 380px;
+    background-color: white;
+    color: grey;
+    resize: none;
+}

@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="icon" type="image/png" href="/static/assets/img/favicon.png">
+    <title>
+        KBQA
+    </title>
+    <!-- Fonts and icons -->
+    <link href="https://fonts.googleapis.com/css?family=Poppins:200,300,400,600,700,800" rel="stylesheet"/>
+    <link href="https://use.fontawesome.com/releases/v5.0.6/css/all.css" rel="stylesheet">
+    <!-- Nucleo Icons -->
+    <link href="/static/assets/css/nucleo-icons.css" rel="stylesheet"/>
+    <!-- CSS Files -->
+    <link href="/static/assets/css/blk-design-system.css?v=1.0.0" rel="stylesheet"/>
+    <link href="/static/assets/css/custom.css?v=1.0.0" rel="stylesheet"/>
+</head>
+
+<body class="index-page">
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg fixed-top navbar-transparent " color-on-scroll="100">
+    <div class="container">
+        <div class="navbar-translate">
+            <a class="navbar-brand" href="/" rel="tooltip"
+               title="KBQA System" data-placement="bottom" target="_blank">
+                <span>KBQA•</span> Answering System
+            </a>
+        </div>
+    </div>
+</nav>
+<!-- End Navbar -->
+<div class="wrapper">
+    <div class="page-header header-filter main-page-header">
+        <div class="squares square1"></div>
+        <div class="squares square2"></div>
+        <div class="squares square3"></div>
+        <div class="squares square5"></div>
+        <div class="squares square6"></div>
+        <div class="squares square7"></div>
+        <div class="container">
+            <div class="content-center brand main-content">
+                <form>
+                    <div class="row">
+                        <div class="col-9">
+                            <input type="text" class="form-control main-input main-control"
+                                   placeholder="Search your questions~" id="question">
+                        </div>
+                        <div class="col-3">
+                            <input type="button" class="form-control btn-primary main-control" value="Search"
+                                   id="search">
+                        </div>
+                    </div>
+                </form>
+                <textarea class="main-show" id="triples" readonly></textarea>
+            </div>
+        </div>
+    </div>
+</div>
+<!--   Core JS Files   -->
+<script src="/static/assets/js/core/jquery.min.js" type="text/javascript"></script>
+<script>
+    $(document).ready(function () {
+        $('#search').click(function () {
+            $('#triples').val('');
+            var question = $("#question").val();
+            if (!question) {
+                return false;
+            }
+            $.ajax({
+                url: "/get_sparql",
+                type: 'post',
+                data: {q: question},
+                success: function (json) {
+                    var value = '';
+                    $.each(json.data.triples, function (i, val) {
+                        value += val + '\n';
+                    });
+                    $('#triples').val(value);
+                    $('#triples').slideDown(1000);
+                }
+            });
+        })
+    });
+</script>
+</body>
+
+</html>
