@@ -106,3 +106,4 @@ venv.bak/
 # PyCharm
 .idea/
 /ltp_data/
+/images_copy/
