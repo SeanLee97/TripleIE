@@ -17,7 +17,8 @@ def index():
 
 @app.route('/get_sparql', methods=["POST"])
 def get_triples():
-    question = request.form.get('q')
+    post = request.json
+    question = post['q']
     rs = CliSingle(question).run()
 
     # 记录问题

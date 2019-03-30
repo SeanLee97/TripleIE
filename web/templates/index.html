@@ -71,7 +71,9 @@
             $.ajax({
                 url: "/get_sparql",
                 type: 'post',
-                data: {q: question},
+                contentType: 'application/json;charset=utf-8',
+                data: JSON.stringify({q: question}),
+                dataType: "json",
                 success: function (json) {
                     var value = '';
                     $.each(json.data.triples, function (i, val) {

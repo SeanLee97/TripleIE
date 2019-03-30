@@ -2,7 +2,10 @@
 
 uWSGI运行
 cd /home/app/uWSGI
-nohup uwsgi --emperor vassals &
+nohup uwsgi conf.ini &
+
+停止
+netstat -altnp | grep uwsgi | awk '{print $2}' | xargs kill -9
 
 关系知识图谱的构建中，三元组的抽取很重要，三元组的抽取其实可以认为是结构化数据的提取。
 那么如何在自然语言处理中提取三元组呢？我能想到的最简单的方式就是通过句法分析来实现了。
