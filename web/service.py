@@ -1,6 +1,9 @@
+import sys
 import time
 
 from flask import Flask, request, jsonify, render_template
+
+sys.path.append('/home/httpd/TripleIE')
 
 from cli_single_question import CliSingle
 
