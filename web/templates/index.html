@@ -12,9 +12,9 @@
     <link href="https://fonts.googleapis.com/css?family=Poppins:200,300,400,600,700,800" rel="stylesheet"/>
     <link href="https://use.fontawesome.com/releases/v5.0.6/css/all.css" rel="stylesheet">
     <!-- Nucleo Icons -->
-    <link href="/static/assets/css/nucleo-icons.css" rel="stylesheet"/>
+    <link href="/static/assets/css/nucleo-icons.min.css" rel="stylesheet"/>
     <!-- CSS Files -->
-    <link href="/static/assets/css/blk-design-system.css?v=1.0.0" rel="stylesheet"/>
+    <link href="/static/assets/css/blk-design-system.min.css?v=1.0.0" rel="stylesheet"/>
     <link href="/static/assets/css/custom.css?v=1.0.0" rel="stylesheet"/>
 </head>
 
@@ -41,17 +41,24 @@
         <div class="squares square7"></div>
         <div class="container">
             <div class="content-center brand main-content">
-                <form>
+                <form id="large" style="display: none;">
                     <div class="row">
                         <div class="col-9">
                             <input type="text" class="form-control main-input main-control"
-                                   placeholder="Search your questions~" id="question">
+                                   placeholder="Search your questions~" id="question_large">
                         </div>
                         <div class="col-3">
                             <input type="button" class="form-control btn-primary main-control" value="Search"
-                                   id="search">
+                                   id="search_large">
                         </div>
                     </div>
+                </form>
+                <form id="small" style="display: none;">
+                    <input type="text" class="form-control main-input main-control"
+                           placeholder="Search your questions~" id="question_small">
+                    <br>
+                    <input type="button" class="form-control btn-primary main-control" value="Search"
+                           id="search_small">
                 </form>
                 <textarea class="main-show" id="triples" readonly></textarea>
             </div>
@@ -59,12 +66,23 @@
     </div>
 </div>
 <!--   Core JS Files   -->
-<script src="/static/assets/js/core/jquery.min.js" type="text/javascript"></script>
+<script src="//cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
 <script>
+    var type = '';
+    var width = $("body").width();
+    console.log(width);
+    if (width < 770) {
+        type = 'small';
+        $('#small').slideDown()
+    } else {
+        type = 'large';
+        $('#large').slideDown()
+    }
+
     $(document).ready(function () {
-        $('#search').click(function () {
+        $('#search_' + type).click(function () {
             $('#triples').val('');
-            var question = $("#question").val();
+            var question = $("#question_" + type).val();
             if (!question) {
                 return false;
             }
@@ -80,7 +98,10 @@
                         value += val + '\n';
                     });
                     $('#triples').val(value);
-                    $('#triples').slideDown(1000);
+                    if (type == 'small') {
+                        $('#triples').height(200);
+                    }
+                    $('#triples').slideDown(500);
                 }
             });
         })
