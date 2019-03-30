@@ -1,11 +1,17 @@
 # TripleIE
 
-uWSGI运行
-cd /home/app/uWSGI
-nohup uwsgi conf.ini &
+gunicorn运行  
+cd /home/httpd/TripleIE/web  
+启动方法一（不稳定，但是响应时间快）：nohup python service.py >log/out.log 2>&1 &  
+启动方法二（需要资源大）：gunicorn -w 4 -b :8080 service:app  
+启动方法三（需要资源大）：gunicorn -c /home/httpd/TripleIE/gunicorn/config.py service:app  
 
-停止
-netstat -altnp | grep uwsgi | awk '{print $2}' | xargs kill -9
+-w 4是指预定义的工作进程数为4，  
+-b 127.0.0.1:4000指绑定地址和端口  
+run是flask的启动python文件，app则是flask应用程序实例  
+
+nginx:  
+见 kbqa.w6688j.com.conf  
 
 关系知识图谱的构建中，三元组的抽取很重要，三元组的抽取其实可以认为是结构化数据的提取。
 那么如何在自然语言处理中提取三元组呢？我能想到的最简单的方式就是通过句法分析来实现了。

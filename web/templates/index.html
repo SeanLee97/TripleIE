@@ -69,7 +69,7 @@
                 return false;
             }
             $.ajax({
-                url: "/get_sparql",
+                url: "/get_triples",
                 type: 'post',
                 contentType: 'application/json;charset=utf-8',
                 data: JSON.stringify({q: question}),

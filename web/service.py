@@ -15,7 +15,7 @@ def index():
     return render_template('index.html')
 
 
-@app.route('/get_sparql', methods=["POST"])
+@app.route('/get_triples', methods=["POST"])
 def get_triples():
     post = request.json
     question = post['q']
@@ -27,6 +27,11 @@ def get_triples():
         f.write(question + '\n')
 
     return jsonify(code=200, message='ok', data={'triples': rs})
+
+
+@app.route('/get_test', methods=["POST"])
+def get_test():
+    return jsonify(code=200, message='ok', data={'triples': 111})
 
 
 if __name__ == '__main__':
