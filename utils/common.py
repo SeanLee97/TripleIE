@@ -27,3 +27,7 @@ def getTriplesWithId(id, triples):
             list.append(triple['triples'])
 
     return list
+
+
+def format(x):
+    return x.strip()
