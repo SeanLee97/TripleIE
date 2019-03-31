@@ -14,7 +14,7 @@ class CliSingle():
             for triple in triples:
                 self.triples.append(triple)
 
-        return self.triples
+        return self.triples, sentences
 
 
 if __name__ == "__main__":

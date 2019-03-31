@@ -19,14 +19,14 @@ def index():
 def get_triples():
     post = request.json
     question = post['q']
-    rs = CliSingle(question).run()
+    triples, norm_questions = CliSingle(question).run()
 
     # 记录问题
     file_name = 'log/questions_' + time.strftime('%Y_%m_%d', time.localtime(time.time())) + '.txt'
     with open(file_name, 'a+', encoding='utf-8') as f:
         f.write(question + '\n')
 
-    return jsonify(code=200, message='ok', data={'triples': rs})
+    return jsonify(code=200, message='ok', data={'triples': triples})
 
 
 @app.route('/get_test', methods=["POST"])
