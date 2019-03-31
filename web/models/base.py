@@ -8,10 +8,10 @@ class Base():
     def exec_sql(self, sql):
         result = ''
         # 打开数据库连接
-        db = pymysql.connect(host='39.107.87.250',
+        db = pymysql.connect(host='47.96.109.137',
                              port=3306,
                              user='root',
-                             passwd='Wj6688',
+                             passwd='12345678',
                              db='kbqa',
                              charset='utf8')
 
