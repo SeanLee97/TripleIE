@@ -20,11 +20,15 @@ def get_triples():
     post = request.json
     question = post['q']
     triples, norm_questions = CliSingle(question).run()
-
     # 记录问题
     Question().save_question(question, norm_questions, triples)
 
     return jsonify(code=200, message='ok', data={'triples': triples})
+
+
+@app.errorhandler(Exception)
+def flask_global_exception_handler(e):
+    return jsonify(code=200, message='err', data={'err': '请求错误'})
 
 
 @app.route('/get_test', methods=["POST"])
