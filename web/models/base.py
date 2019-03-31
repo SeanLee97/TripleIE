@@ -1,3 +1,5 @@
+import json
+
 import pymysql
 
 
@@ -35,5 +37,14 @@ class Base():
 
 if __name__ == '__main__':
     sqlModel = Base()
-    rs = sqlModel.exec_sql("SELECT * FROM kb_questions WHERE id = 5")
-    print(rs[0]['triples'])
+    question = '2018年上海的城镇人口'
+    norm_questions = json.dumps({'normalize_question': []})
+    triples = json.dumps({'triples': []})
+
+    insert_sql = ("INSERT INTO kb_questions (question,normalize_question,triples,create_time) "
+                  "VALUES ('%s','%s','%s',NOW())" %
+                  (question, norm_questions, triples))
+
+    sqlModel.exec_sql(insert_sql)
+    # rs = sqlModel.exec_sql("SELECT * FROM kb_questions WHERE id = 5")
+    # print(rs[0]['triples'])
