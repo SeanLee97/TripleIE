@@ -20,3 +20,11 @@
     color: grey;
     resize: none;
 }
+
+.modal-footer-main {
+    justify-content: flex-end !important;
+}
+
+.modal-footer-main button {
+    margin-left: .25rem !important;
+}

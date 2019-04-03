@@ -16,13 +16,6 @@
     <!-- CSS Files -->
     <link href="/static/assets/css/blk-design-system.min.css?v=1.0.0" rel="stylesheet"/>
     <link href="/static/assets/css/custom.css?v=1.0.0" rel="stylesheet"/>
-
-    <!-- 引入jQuery UI的css文件 -->
-    <link rel="stylesheet" href="/static/assets/css/jquery-ui-1.10.4.custom.css"/>
-    <!-- 引入jQuery的js文件 -->
-    <script src="/static/assets/js/core/jquery-1.10.2.js" type="text/javascript"></script>
-    <!-- 引入jQuery UI的js文件 -->
-    <script src="/static/assets/js/core/jquery-ui-1.10.4.custom.js" type="text/javascript"></script>
 </head>
 
 <body class="index-page">
@@ -55,8 +48,8 @@
                                    placeholder="Search your questions~" id="question_large">
                         </div>
                         <div class="col-3">
-                            <input type="button" class="form-control btn-primary main-control" value="Search"
-                                   id="search_large">
+                            <input type="button" class="form-control btn-primary main-control search" value="Search"
+                                   data-toggle="modal" data-target="#getQuestionModal">
                         </div>
                     </div>
                 </form>
@@ -64,19 +57,46 @@
                     <input type="text" class="form-control main-input main-control"
                            placeholder="Search your questions~" id="question_small">
                     <br>
-                    <input type="button" class="form-control btn-primary main-control" value="Search"
-                           id="search_small">
+                    <input type="button" class="form-control btn-primary main-control search" value="Search"
+                           data-toggle="modal"
+                           data-target="#getQuestionModal">
                 </form>
-                <textarea class="main-show" id="triples" readonly></textarea>
+            </div>
+        </div>
+    </div>
+    <!-- Modal -->
+    <div class="modal fade" id="getQuestionModal" tabindex="-1" role="dialog" aria-labelledby="getQuestionModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="getQuestionModalLabel">请问以下查询结果是您想要的吗？</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                </div>
+                <div class="modal-footer modal-footer-main">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal" id="new_question">不是我想要的
+                    </button>
+                    <button type="button" class="btn btn-primary" data-dismiss="modal" aria-label="Close">是我想要的</button>
+                </div>
             </div>
         </div>
     </div>
 </div>
+<!-- Core -->
+<script src="/static/assets/js/core/jquery.min.js"></script>
+<script src="/static/assets/js/core/popper.min.js"></script>
+<script src="/static/assets/js/core/bootstrap.min.js"></script>
+
+<!-- Theme JS -->
+<script src="/static/assets/js/blk-design-system.min.js"></script>
 <script>
     $(document).ready(function () {
         var type = '';
         var width = $("body").width();
-        console.log(width);
         if (width < 770) {
             type = 'small';
             $('#small').slideDown()
@@ -85,22 +105,15 @@
             $('#large').slideDown()
         }
 
-        getTargetData().then((data) => {
-            $("#question_large").autocomplete({
-                source: data
-            });
-        }).catch((err) => {
-            console.log('err', err);
-        });
-
-        $('#search_' + type).click(function () {
+        $('.search').click(function () {
             $('#triples').val('');
             var question = $("#question_" + type).val();
+            console.log(question);
             if (!question) {
                 return false;
             }
             $.ajax({
-                url: "/get_triples",
+                url: "/get_question",
                 type: 'post',
                 contentType: 'application/json;charset=utf-8',
                 data: JSON.stringify({q: question}),
@@ -110,34 +123,13 @@
                     $.each(json.data.triples, function (i, val) {
                         value += val + '\n';
                     });
-                    $('#triples').val(value);
-                    if (type == 'small') {
-                        $('#triples').height(200);
-                    }
-                    $('#triples').slideDown(500);
+                    $('#getQuestionModal').on('show.bs.modal', function (event) {
+                        var modal = $(this);
+                        modal.find('.modal-body').text('New message to')
+                    });
                 }
             });
         });
-
-        function getTargetData() {
-            var promise = new Promise((resolve, reject) => {
-                $.ajax({
-                    type: 'get',
-                    url: '/static/assets/question/nlp_questions.txt',
-                    success: function (data) {
-                        let targetData = data;
-                        targetData = targetData.split('\n');
-                        // targetData = targetData.slice(0,10);
-                        console.log(targetData);
-                        resolve(targetData);
-                    },
-                    fail: function (err) {
-                        reject(err)
-                    }
-                })
-            });
-            return promise;
-        }
     });
 </script>
 </body>
