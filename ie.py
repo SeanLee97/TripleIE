@@ -47,7 +47,7 @@ class TripleIE(object):
         if out_file_path is not None:
             self.out_file_path = out_file_path
 
-        self.out_handle = open(self.out_file_path, 'a')
+        self.out_handle = open(self.out_file_path, 'a', encoding="utf-8")
 
         with open(self.in_file_path, "r", encoding="utf-8") as rf:
             self.logger.info("loadding input file {}...".format(self.in_file_path))
